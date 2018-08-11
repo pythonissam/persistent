@@ -518,13 +518,16 @@ sumConstrName mps t FieldDef {..} = mkName $ unpack $ concat
 
 uniqueTypeDec :: MkPersistSettings -> EntityDef -> Dec
 uniqueTypeDec mps t =
-    DataInstD [] ''Unique
-        [genericDataType mps (entityHaskell t) backendT]
+    DataInstD [AppT showC recordType] ''Unique
+        [recordType]
 #if MIN_VERSION_template_haskell(2,11,0)
             Nothing
 #endif
             (map (mkUnique mps t) $ entityUniques t)
-            []
+            [DerivClause Nothing [showC]]
+  where
+    recordType = genericDataType mps (entityHaskell t) backendT
+    showC = ConT $ mkName "Show"
 
 mkUnique :: MkPersistSettings -> EntityDef -> UniqueDef -> Con
 mkUnique mps t (UniqueDef (HaskellName constr) _ fields attrs) =
