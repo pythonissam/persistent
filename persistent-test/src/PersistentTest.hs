@@ -233,6 +233,9 @@ specs = describe "persistent" $ do
       let p = Person "Shakespeare" 52 Nothing
       _ <- insert p
 
+      let wut = "\re"
+      ps' <- selectList [likeWithEscape '\\' PersonName ("%espea" <> toEscapedLikeText wut)] []
+
       let maltext = "re%"
       ps <- selectList [likeWithEscape '@' PersonName ("%espea" <> toEscapedLikeText maltext)] []
       assertEmpty ps
